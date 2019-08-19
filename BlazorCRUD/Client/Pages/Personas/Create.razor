@@ -1,0 +1,21 @@
+﻿@page "/crear-persona"
+@inject HttpClient Http
+@inject IUriHelper UrlHelper
+
+
+<h3>Create Persoa</h3>
+
+<FormularioPersonas TextoBoton="Crear Persona" OnValidSubmit="@CrearPersona" Persona="@persona"></FormularioPersonas>
+
+@code {
+
+    Persona persona = new Persona();
+
+    async Task CrearPersona()
+    {
+        await Http.PostJsonAsync("personas", persona);
+
+        UrlHelper.NavigateTo("indice-persona");
+    }
+
+}

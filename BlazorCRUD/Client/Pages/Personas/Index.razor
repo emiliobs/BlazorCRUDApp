@@ -1,0 +1,86 @@
+﻿@page "/indice-persona"
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+
+<h3>Personas</h3>
+
+<div>
+    <a href="crear-persona" class="btn btn-info">Nueva Persona</a>
+</div>
+
+@if (Personas == null)
+{
+    <text>Loanding.....</text>
+
+}
+else if(Personas.Length == 0)
+{
+    <text>No hay personas en la Base de datos.</text>
+}
+else
+{
+    <table class="table table-hover">
+        <thead style="background-color:black; color:white;">
+            <tr>
+                <th>ID</th>
+               <th>Nombre</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var persona in Personas)
+            {
+            <tr>
+                <td>
+                    @persona.Id
+                </td>
+                <td>
+                    @persona.Nombre
+                </td>
+                <td>
+                    <a class="btn btn-success" href="edit-persona/@persona.Id">Editar</a>
+                    <button class="btn btn-danger" @onclick="@(() => BorrarPersona(persona.Id))">Borrar</button>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+
+    public Persona[] Personas { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarPersonas();
+    }
+
+    async Task CargarPersonas()
+    {
+        Personas = await Http.GetJsonAsync<Persona[]>("personas");
+
+        //Personas = new Persona[]
+        //{
+        //   new Persona(){ Id = 1, Nombre ="EMilio" },
+        //   new Persona(){ Id = 2 , Nombre = "Blanca"},
+        //};
+    }
+
+    async Task BorrarPersona(int idPersona)
+    {
+
+        var personaSeleccionada = Personas.First(p => p.Id == idPersona);
+        var mensajeConnfirmacion = $"¿Deseas borrar a la persona {personaSeleccionada.Nombre}?";
+
+        @if (await JS.InvokeAsync<bool>("confirm", mensajeConnfirmacion))
+	    {
+            await Http.DeleteAsync($"personas/{idPersona}");
+            await CargarPersonas();
+		 
+	    }
+
+    }
+
+}
