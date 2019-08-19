@@ -1,7 +1,8 @@
 ﻿@page "/indice-persona"
 @inject HttpClient Http
 @inject IJSRuntime JS
-
+@using System.IO
+@using CsvHelper
 
 <h3>Personas</h3>
 
@@ -48,6 +49,12 @@ else
     </table>
 }
 
+<div>
+    <button class="btn btn-primary" @onclick="@ExportarCSV">Exportar a CSV</button>
+
+</div>
+
+
 @code {
 
     public Persona[] Personas { get; set; }
@@ -81,6 +88,24 @@ else
 		 
 	    }
 
+    }
+
+    private void ExportarCSV()
+    {
+        using (var memoryStream = new MemoryStream())
+        {
+            using (var writer = new StreamWriter(memoryStream))
+            {
+                using (var csv = new CsvWriter(writer))
+                {
+                    csv.WriteRecords(Personas);
+                }
+
+                var arr = memoryStream.ToArray();
+                JS.GuardarComo("personas.csv", arr);
+
+            }
+        }
     }
 
 }
